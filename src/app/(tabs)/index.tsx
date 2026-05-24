@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AlbumArt } from '@/components/AlbumArt';
 import { quickPlay, shelves, type QuickPlayItem, type Shelf, type ShelfItem } from '@/data/mockHome';
 import { colors } from '@/theme/colors';
 
@@ -15,7 +16,7 @@ function greeting(): string {
 function QuickPlayCard({ item }: { item: QuickPlayItem }) {
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.quickCard}>
-      <View style={[styles.quickArt, { backgroundColor: item.color }]} />
+      <AlbumArt palette={item.palette} seed={item.id} size={56} radius={12} />
       <Text style={styles.quickTitle} numberOfLines={2}>
         {item.title}
       </Text>
@@ -42,7 +43,7 @@ function ShelfRow({ shelf }: { shelf: Shelf }) {
 function ShelfCard({ item }: { item: ShelfItem }) {
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.shelfCard}>
-      <View style={[styles.shelfArt, { backgroundColor: item.color }]} />
+      <AlbumArt palette={item.palette} seed={item.id} size={148} radius={20} />
       <Text style={styles.shelfCardTitle} numberOfLines={1}>
         {item.title}
       </Text>
@@ -95,75 +96,67 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingTop: 8,
-    paddingBottom: 16,
+    paddingBottom: 20,
   },
   headerTitle: {
     color: colors.text,
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '700',
+    letterSpacing: -0.5,
   },
   quickGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 12,
-    marginBottom: 24,
+    paddingHorizontal: 14,
+    marginBottom: 28,
   },
   quickCard: {
-    width: '50%',
-    paddingHorizontal: 4,
-    paddingVertical: 4,
+    width: '47%',
+    padding: 6,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderRadius: 4,
-    marginBottom: 8,
+    borderRadius: 18,
+    marginBottom: 10,
     marginHorizontal: 4,
     flexBasis: '47%',
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
   },
-  quickArt: {
-    width: 48,
-    height: 48,
-  },
   quickTitle: {
     flex: 1,
     color: colors.text,
     fontSize: 13,
     fontWeight: '600',
-    marginLeft: 8,
-    marginRight: 8,
+    marginLeft: 10,
+    marginRight: 6,
   },
   shelf: {
-    marginBottom: 24,
+    marginBottom: 28,
   },
   shelfTitle: {
     color: colors.text,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
-    paddingHorizontal: 16,
-    marginBottom: 12,
+    letterSpacing: -0.4,
+    paddingHorizontal: 20,
+    marginBottom: 14,
   },
   shelfList: {
-    paddingHorizontal: 16,
-    gap: 12,
+    paddingHorizontal: 20,
+    gap: 14,
   },
   shelfCard: {
-    width: 144,
-  },
-  shelfArt: {
-    width: 144,
-    height: 144,
-    borderRadius: 4,
-    marginBottom: 8,
+    width: 148,
   },
   shelfCardTitle: {
     color: colors.text,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
+    marginTop: 10,
     marginBottom: 2,
   },
   shelfCardSubtitle: {

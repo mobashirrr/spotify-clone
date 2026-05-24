@@ -18,14 +18,15 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   title: {
     color: colors.text,
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '700',
+    letterSpacing: -0.5,
     marginTop: 8,
-    marginBottom: 16,
+    marginBottom: 18,
   },
   body: {
     flex: 1,
