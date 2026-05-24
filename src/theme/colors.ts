@@ -12,12 +12,12 @@ export const PALETTES = {
 export type PaletteName = keyof typeof PALETTES;
 
 export const colors = {
-  background: '#FAF7F2',
-  surface: '#FFFFFF',
-  surfaceTint: '#F4EFE7',
-  border: '#E8E0D3',
-  text: '#1A1330',
-  textMuted: '#6B6480',
-  primary: '#1A1330',
-  tabBarInactive: '#8B859C',
+  background: '#14102A',
+  surface: '#221A40',
+  surfaceTint: '#2A2050',
+  border: '#2F2554',
+  text: '#F5EFE7',
+  textMuted: '#9B91B5',
+  primary: '#CDB6FF',
+  tabBarInactive: '#6B6480',
 };
