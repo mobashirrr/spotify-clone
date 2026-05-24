@@ -3,6 +3,7 @@ import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { quickPlay, shelves, type QuickPlayItem, type Shelf, type ShelfItem } from '@/data/mockHome';
+import { colors } from '@/theme/colors';
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -62,7 +63,7 @@ export default function Home() {
       >
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{greeting()}</Text>
-          <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
+          <Ionicons name="settings-outline" size={24} color={colors.text} />
         </View>
 
         <View style={styles.quickGrid}>
@@ -82,7 +83,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: colors.background,
   },
   scroll: {
     flex: 1,
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   headerTitle: {
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 24,
     fontWeight: '700',
   },
@@ -115,12 +116,14 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F1F1F',
+    backgroundColor: colors.surface,
     borderRadius: 4,
     marginBottom: 8,
     marginHorizontal: 4,
     flexBasis: '47%',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   quickArt: {
     width: 48,
@@ -128,7 +131,7 @@ const styles = StyleSheet.create({
   },
   quickTitle: {
     flex: 1,
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 13,
     fontWeight: '600',
     marginLeft: 8,
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   shelfTitle: {
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 20,
     fontWeight: '700',
     paddingHorizontal: 16,
@@ -158,13 +161,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   shelfCardTitle: {
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 2,
   },
   shelfCardSubtitle: {
-    color: '#B3B3B3',
+    color: colors.textMuted,
     fontSize: 12,
   },
 });

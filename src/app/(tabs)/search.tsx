@@ -2,16 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { colors } from '@/theme/colors';
+
 export default function Search() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Text style={styles.title}>Search</Text>
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color="#121212" />
+        <Ionicons name="search" size={20} color={colors.textMuted} />
         <Text style={styles.searchPlaceholder}>Artists, songs, or podcasts</Text>
       </View>
       <View style={styles.body}>
-        <Text style={styles.hint}>Search wires up on Day 4</Text>
+        <Text style={styles.hint}>Coming soon</Text>
       </View>
     </SafeAreaView>
   );
@@ -20,11 +22,11 @@ export default function Search() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: colors.background,
     paddingHorizontal: 16,
   },
   title: {
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 28,
     fontWeight: '700',
     marginTop: 8,
@@ -33,14 +35,16 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 4,
     paddingHorizontal: 12,
     paddingVertical: 12,
     gap: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   searchPlaceholder: {
-    color: '#121212',
+    color: colors.textMuted,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -50,7 +54,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   hint: {
-    color: '#888',
+    color: colors.textMuted,
     fontSize: 13,
   },
 });

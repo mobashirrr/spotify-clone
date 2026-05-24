@@ -1,12 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { colors } from '@/theme/colors';
+
 export default function Library() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Text style={styles.title}>Your Library</Text>
       <View style={styles.body}>
-        <Text style={styles.hint}>Library wires up on Day 9</Text>
+        <Text style={styles.hint}>Coming soon</Text>
       </View>
     </SafeAreaView>
   );
@@ -15,11 +17,11 @@ export default function Library() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: colors.background,
     paddingHorizontal: 16,
   },
   title: {
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 28,
     fontWeight: '700',
     marginTop: 8,
@@ -31,7 +33,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   hint: {
-    color: '#888',
+    color: colors.textMuted,
     fontSize: 13,
   },
 });
