@@ -78,9 +78,9 @@ export function getNewTracks(limit = 8): Promise<JamendoTrack[]> {
   });
 }
 
-export function getPopularPlaylists(limit = 6): Promise<JamendoPlaylist[]> {
+export function getRecentPlaylists(limit = 6): Promise<JamendoPlaylist[]> {
   return fetchJamendo<JamendoPlaylist>('/playlists', {
     limit: String(limit),
-    order: 'popularity_total',
+    order: 'creationdate_desc',
   });
 }

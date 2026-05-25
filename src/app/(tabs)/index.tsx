@@ -16,8 +16,8 @@ import type { HomeCard, Shelf } from '@/data/home';
 import {
   getNewTracks,
   getPopularAlbums,
-  getPopularPlaylists,
   getPopularTracks,
+  getRecentPlaylists,
 } from '@/services/jamendo';
 import { PALETTES, colors, type PaletteName } from '@/theme/colors';
 
@@ -46,7 +46,7 @@ async function loadHome(): Promise<HomeData> {
     getPopularTracks(8),
     getPopularAlbums(8),
     getNewTracks(8),
-    getPopularPlaylists(6),
+    getRecentPlaylists(6),
   ]);
 
   return {
