@@ -1,10 +1,33 @@
 import { Ionicons } from '@expo/vector-icons';
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlbumArt } from '@/components/AlbumArt';
-import { quickPlay, shelves, type QuickPlayItem, type Shelf, type ShelfItem } from '@/data/mockHome';
-import { colors } from '@/theme/colors';
+import type { HomeCard, Shelf } from '@/data/home';
+import {
+  getNewTracks,
+  getPopularAlbums,
+  getPopularPlaylists,
+  getPopularTracks,
+} from '@/services/jamendo';
+import { PALETTES, colors, type PaletteName } from '@/theme/colors';
+
+const PALETTE_KEYS = Object.keys(PALETTES) as PaletteName[];
+
+function paletteFromId(id: string): PaletteName {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return PALETTE_KEYS[Math.abs(h) % PALETTE_KEYS.length];
+}
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -13,13 +36,86 @@ function greeting(): string {
   return 'Good evening';
 }
 
-function QuickPlayCard({ item }: { item: QuickPlayItem }) {
+type HomeData = {
+  quickPlay: HomeCard[];
+  shelves: Shelf[];
+};
+
+async function loadHome(): Promise<HomeData> {
+  const [tracks, albums, newTracks, playlists] = await Promise.all([
+    getPopularTracks(8),
+    getPopularAlbums(8),
+    getNewTracks(8),
+    getPopularPlaylists(6),
+  ]);
+
+  return {
+    quickPlay: playlists.map((pl) => ({
+      id: `pl-${pl.id}`,
+      title: pl.name,
+      palette: paletteFromId(pl.id),
+    })),
+    shelves: [
+      {
+        id: 'popular-tracks',
+        title: 'Popular tracks',
+        items: tracks.map((t) => ({
+          id: `t-${t.id}`,
+          title: t.name,
+          subtitle: t.artist_name,
+          imageUrl: t.album_image,
+          palette: paletteFromId(t.id),
+        })),
+      },
+      {
+        id: 'popular-albums',
+        title: 'Popular albums',
+        items: albums.map((a) => ({
+          id: `a-${a.id}`,
+          title: a.name,
+          subtitle: a.artist_name,
+          imageUrl: a.image,
+          palette: paletteFromId(a.id),
+        })),
+      },
+      {
+        id: 'new-releases',
+        title: 'New releases',
+        items: newTracks.map((t) => ({
+          id: `n-${t.id}`,
+          title: t.name,
+          subtitle: t.artist_name,
+          imageUrl: t.album_image,
+          palette: paletteFromId(t.id),
+        })),
+      },
+    ],
+  };
+}
+
+function QuickPlayCard({ item }: { item: HomeCard }) {
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.quickCard}>
-      <AlbumArt palette={item.palette} seed={item.id} size={56} radius={12} />
+      <AlbumArt palette={item.palette} seed={item.id} size={56} radius={12} imageUrl={item.imageUrl} />
       <Text style={styles.quickTitle} numberOfLines={2}>
         {item.title}
       </Text>
+    </TouchableOpacity>
+  );
+}
+
+function ShelfCard({ item }: { item: HomeCard }) {
+  return (
+    <TouchableOpacity activeOpacity={0.7} style={styles.shelfCard}>
+      <AlbumArt palette={item.palette} seed={item.id} size={148} radius={20} imageUrl={item.imageUrl} />
+      <Text style={styles.shelfCardTitle} numberOfLines={1}>
+        {item.title}
+      </Text>
+      {item.subtitle ? (
+        <Text style={styles.shelfCardSubtitle} numberOfLines={2}>
+          {item.subtitle}
+        </Text>
+      ) : null}
     </TouchableOpacity>
   );
 }
@@ -40,21 +136,35 @@ function ShelfRow({ shelf }: { shelf: Shelf }) {
   );
 }
 
-function ShelfCard({ item }: { item: ShelfItem }) {
-  return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.shelfCard}>
-      <AlbumArt palette={item.palette} seed={item.id} size={148} radius={20} />
-      <Text style={styles.shelfCardTitle} numberOfLines={1}>
-        {item.title}
-      </Text>
-      <Text style={styles.shelfCardSubtitle} numberOfLines={2}>
-        {item.subtitle}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
 export default function Home() {
+  const [data, setData] = useState<HomeData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setError(null);
+    setData(null);
+    loadHome().then(
+      (d) => {
+        if (!cancelled) setData(d);
+      },
+      (e: unknown) => {
+        if (!cancelled) {
+          const msg = e instanceof Error ? e.message : String(e);
+          setError(msg);
+        }
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
+
+  const retry = useCallback(() => {
+    setReloadKey((k) => k + 1);
+  }, []);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
@@ -67,15 +177,36 @@ export default function Home() {
           <Ionicons name="settings-outline" size={24} color={colors.text} />
         </View>
 
-        <View style={styles.quickGrid}>
-          {quickPlay.map((item) => (
-            <QuickPlayCard key={item.id} item={item} />
-          ))}
-        </View>
+        {!data && !error ? (
+          <View style={styles.centerState}>
+            <ActivityIndicator color={colors.primary} />
+            <Text style={styles.centerHint}>Loading from Jamendo…</Text>
+          </View>
+        ) : null}
 
-        {shelves.map((shelf) => (
-          <ShelfRow key={shelf.id} shelf={shelf} />
-        ))}
+        {error ? (
+          <View style={styles.centerState}>
+            <Text style={styles.errorTitle}>Couldn't load music</Text>
+            <Text style={styles.errorMessage}>{error}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={retry} activeOpacity={0.7}>
+              <Text style={styles.retryText}>Try again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
+        {data ? (
+          <>
+            <View style={styles.quickGrid}>
+              {data.quickPlay.map((item) => (
+                <QuickPlayCard key={item.id} item={item} />
+              ))}
+            </View>
+
+            {data.shelves.map((shelf) => (
+              <ShelfRow key={shelf.id} shelf={shelf} />
+            ))}
+          </>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -105,6 +236,39 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '700',
     letterSpacing: -0.5,
+  },
+  centerState: {
+    paddingHorizontal: 20,
+    paddingVertical: 48,
+    alignItems: 'center',
+    gap: 12,
+  },
+  centerHint: {
+    color: colors.textMuted,
+    fontSize: 13,
+  },
+  errorTitle: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  errorMessage: {
+    color: colors.textMuted,
+    fontSize: 13,
+    textAlign: 'center',
+    paddingHorizontal: 16,
+  },
+  retryButton: {
+    marginTop: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: colors.primary,
+    borderRadius: 999,
+  },
+  retryText: {
+    color: colors.background,
+    fontSize: 14,
+    fontWeight: '600',
   },
   quickGrid: {
     flexDirection: 'row',
