@@ -26,6 +26,14 @@ export type JamendoPlaylist = {
   creationdate: string;
 };
 
+export type JamendoArtist = {
+  id: string;
+  name: string;
+  joindate: string;
+  image: string;
+  website?: string;
+};
+
 type JamendoResponse<T> = {
   headers: {
     status: string;
@@ -82,5 +90,26 @@ export function getRecentPlaylists(limit = 6): Promise<JamendoPlaylist[]> {
   return fetchJamendo<JamendoPlaylist>('/playlists', {
     limit: String(limit),
     order: 'creationdate_desc',
+  });
+}
+
+export function searchTracks(query: string, limit = 10): Promise<JamendoTrack[]> {
+  return fetchJamendo<JamendoTrack>('/tracks', {
+    limit: String(limit),
+    namesearch: query,
+  });
+}
+
+export function searchAlbums(query: string, limit = 8): Promise<JamendoAlbum[]> {
+  return fetchJamendo<JamendoAlbum>('/albums', {
+    limit: String(limit),
+    namesearch: query,
+  });
+}
+
+export function searchArtists(query: string, limit = 6): Promise<JamendoArtist[]> {
+  return fetchJamendo<JamendoArtist>('/artists', {
+    limit: String(limit),
+    namesearch: query,
   });
 }
