@@ -13,7 +13,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlbumArt } from '@/components/AlbumArt';
-import { getAlbumDetail, type JamendoAlbumDetail } from '@/services/jamendo';
+import { usePlayback, type PlayableTrack } from '@/playback/PlaybackContext';
+import {
+  getAlbumDetail,
+  type JamendoAlbumDetail,
+  type JamendoAlbumTrack,
+} from '@/services/jamendo';
 import { PALETTES, colors, type PaletteName } from '@/theme/colors';
 
 const PALETTE_KEYS = Object.keys(PALETTES) as PaletteName[];
@@ -39,6 +44,7 @@ function releaseYear(date?: string): string | null {
 
 export default function AlbumDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { play } = usePlayback();
   const [album, setAlbum] = useState<JamendoAlbumDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -68,6 +74,25 @@ export default function AlbumDetail() {
     if (router.canGoBack()) router.back();
     else router.replace('/(tabs)');
   }, []);
+
+  const playTrack = useCallback(
+    (t: JamendoAlbumTrack) => {
+      if (!album) return;
+      const playable: PlayableTrack = {
+        id: t.id,
+        name: t.name,
+        artist_name: album.artist_name,
+        album_image: album.image,
+        audio: t.audio,
+      };
+      play(playable);
+    },
+    [album, play],
+  );
+
+  const playAlbum = useCallback(() => {
+    if (album && album.tracks.length > 0) playTrack(album.tracks[0]);
+  }, [album, playTrack]);
 
   const palette = album ? PALETTES[paletteFromId(album.id)] : PALETTES.lavender;
   const year = releaseYear(album?.releasedate);
@@ -134,14 +159,19 @@ export default function AlbumDetail() {
                 <Ionicons name="heart-outline" size={26} color={colors.textMuted} />
               </TouchableOpacity>
               <View style={{ flex: 1 }} />
-              <TouchableOpacity activeOpacity={0.85} style={styles.playButton}>
+              <TouchableOpacity activeOpacity={0.85} style={styles.playButton} onPress={playAlbum}>
                 <Ionicons name="play" size={26} color={colors.background} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.trackList}>
               {album.tracks.map((t, i) => (
-                <TouchableOpacity key={t.id} style={styles.trackRow} activeOpacity={0.7}>
+                <TouchableOpacity
+                  key={t.id}
+                  style={styles.trackRow}
+                  activeOpacity={0.7}
+                  onPress={() => playTrack(t)}
+                >
                   <Text style={styles.trackIndex}>{t.position ?? i + 1}</Text>
                   <View style={styles.trackMeta}>
                     <Text style={styles.trackTitle} numberOfLines={1}>

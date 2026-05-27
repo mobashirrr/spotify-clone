@@ -13,7 +13,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlbumArt } from '@/components/AlbumArt';
-import { getPlaylistDetail, type JamendoPlaylistDetail } from '@/services/jamendo';
+import { usePlayback } from '@/playback/PlaybackContext';
+import {
+  getPlaylistDetail,
+  type JamendoPlaylistDetail,
+  type JamendoTrack,
+} from '@/services/jamendo';
 import { PALETTES, colors, type PaletteName } from '@/theme/colors';
 
 const PALETTE_KEYS = Object.keys(PALETTES) as PaletteName[];
@@ -33,6 +38,7 @@ function formatDuration(seconds: number): string {
 
 export default function PlaylistDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { play } = usePlayback();
   const [playlist, setPlaylist] = useState<JamendoPlaylistDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -62,6 +68,23 @@ export default function PlaylistDetail() {
     if (router.canGoBack()) router.back();
     else router.replace('/(tabs)');
   }, []);
+
+  const playTrack = useCallback(
+    (t: JamendoTrack) => {
+      play({
+        id: t.id,
+        name: t.name,
+        artist_name: t.artist_name,
+        album_image: t.album_image,
+        audio: t.audio,
+      });
+    },
+    [play],
+  );
+
+  const playPlaylist = useCallback(() => {
+    if (playlist && playlist.tracks.length > 0) playTrack(playlist.tracks[0]);
+  }, [playlist, playTrack]);
 
   const palette = playlist ? PALETTES[paletteFromId(playlist.id)] : PALETTES.lavender;
 
@@ -125,14 +148,19 @@ export default function PlaylistDetail() {
                 <Ionicons name="heart-outline" size={26} color={colors.textMuted} />
               </TouchableOpacity>
               <View style={{ flex: 1 }} />
-              <TouchableOpacity activeOpacity={0.85} style={styles.playButton}>
+              <TouchableOpacity activeOpacity={0.85} style={styles.playButton} onPress={playPlaylist}>
                 <Ionicons name="play" size={26} color={colors.background} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.trackList}>
               {playlist.tracks.map((t) => (
-                <TouchableOpacity key={t.id} style={styles.trackRow} activeOpacity={0.7}>
+                <TouchableOpacity
+                  key={t.id}
+                  style={styles.trackRow}
+                  activeOpacity={0.7}
+                  onPress={() => playTrack(t)}
+                >
                   <AlbumArt
                     palette={paletteFromId(t.id)}
                     seed={`t-${t.id}`}

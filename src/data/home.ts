@@ -10,6 +10,7 @@ export type HomeCard = {
   subtitle?: string;
   palette: PaletteName;
   imageUrl?: string;
+  audio?: string;
 };
 
 export type Shelf = {

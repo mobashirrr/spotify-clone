@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlbumArt } from '@/components/AlbumArt';
+import { usePlayback } from '@/playback/PlaybackContext';
 import {
   searchAlbums,
   searchArtists,
@@ -44,6 +45,7 @@ type Results = {
 const EMPTY_RESULTS: Results = { tracks: [], artists: [], albums: [] };
 
 export default function Search() {
+  const { play } = usePlayback();
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [results, setResults] = useState<Results>(EMPTY_RESULTS);
@@ -215,7 +217,16 @@ export default function Search() {
                     key={t.id}
                     style={styles.trackRow}
                     activeOpacity={0.7}
-                    onPress={() => commitRecent(debounced)}
+                    onPress={() => {
+                      commitRecent(debounced);
+                      play({
+                        id: t.id,
+                        name: t.name,
+                        artist_name: t.artist_name,
+                        album_image: t.album_image,
+                        audio: t.audio,
+                      });
+                    }}
                   >
                     <AlbumArt
                       palette={paletteFromId(t.id)}

@@ -1,11 +1,20 @@
-import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { BottomTabBar } from '@react-navigation/bottom-tabs';
+import { Tabs } from 'expo-router';
+import { View } from 'react-native';
 
+import { MiniPlayer } from '@/components/MiniPlayer';
 import { colors } from '@/theme/colors';
 
 export default function TabsLayout() {
   return (
     <Tabs
+      tabBar={(props) => (
+        <View>
+          <MiniPlayer />
+          <BottomTabBar {...props} />
+        </View>
+      )}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,

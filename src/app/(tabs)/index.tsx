@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlbumArt } from '@/components/AlbumArt';
 import type { HomeCard, Shelf } from '@/data/home';
+import { usePlayback, type PlayableTrack } from '@/playback/PlaybackContext';
 import {
   getNewTracks,
   getPopularAlbums,
@@ -69,6 +70,7 @@ async function loadHome(): Promise<HomeData> {
           title: t.name,
           subtitle: t.artist_name,
           imageUrl: t.album_image,
+          audio: t.audio,
           palette: paletteFromId(t.id),
         })),
       },
@@ -95,6 +97,7 @@ async function loadHome(): Promise<HomeData> {
           title: t.name,
           subtitle: t.artist_name,
           imageUrl: t.album_image,
+          audio: t.audio,
           palette: paletteFromId(t.id),
         })),
       },
@@ -102,17 +105,26 @@ async function loadHome(): Promise<HomeData> {
   };
 }
 
-function openCard(item: HomeCard) {
+function openCard(item: HomeCard, play: (t: PlayableTrack) => void) {
   if (item.kind === 'album') {
     router.push({ pathname: '/album/[id]', params: { id: item.targetId } });
   } else if (item.kind === 'playlist') {
     router.push({ pathname: '/playlist/[id]', params: { id: item.targetId } });
+  } else if (item.kind === 'track' && item.audio) {
+    play({
+      id: item.targetId,
+      name: item.title,
+      artist_name: item.subtitle ?? '',
+      album_image: item.imageUrl,
+      audio: item.audio,
+    });
   }
 }
 
 function QuickPlayCard({ item }: { item: HomeCard }) {
+  const { play } = usePlayback();
   return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.quickCard} onPress={() => openCard(item)}>
+    <TouchableOpacity activeOpacity={0.7} style={styles.quickCard} onPress={() => openCard(item, play)}>
       <AlbumArt palette={item.palette} seed={item.id} size={56} radius={12} imageUrl={item.imageUrl} />
       <Text style={styles.quickTitle} numberOfLines={2}>
         {item.title}
@@ -122,8 +134,9 @@ function QuickPlayCard({ item }: { item: HomeCard }) {
 }
 
 function ShelfCard({ item }: { item: HomeCard }) {
+  const { play } = usePlayback();
   return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.shelfCard} onPress={() => openCard(item)}>
+    <TouchableOpacity activeOpacity={0.7} style={styles.shelfCard} onPress={() => openCard(item, play)}>
       <AlbumArt palette={item.palette} seed={item.id} size={148} radius={20} imageUrl={item.imageUrl} />
       <Text style={styles.shelfCardTitle} numberOfLines={1}>
         {item.title}
