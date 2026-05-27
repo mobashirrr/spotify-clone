@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -14,11 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlbumArt } from '@/components/AlbumArt';
 import { usePlayback, type PlayableTrack } from '@/playback/PlaybackContext';
-import {
-  getAlbumDetail,
-  type JamendoAlbumDetail,
-  type JamendoAlbumTrack,
-} from '@/services/jamendo';
+import { getAlbumDetail, type JamendoAlbumDetail } from '@/services/jamendo';
 import { PALETTES, colors, type PaletteName } from '@/theme/colors';
 
 const PALETTE_KEYS = Object.keys(PALETTES) as PaletteName[];
@@ -44,7 +40,7 @@ function releaseYear(date?: string): string | null {
 
 export default function AlbumDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { play } = usePlayback();
+  const { playQueue } = usePlayback();
   const [album, setAlbum] = useState<JamendoAlbumDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -75,24 +71,25 @@ export default function AlbumDetail() {
     else router.replace('/(tabs)');
   }, []);
 
-  const playTrack = useCallback(
-    (t: JamendoAlbumTrack) => {
-      if (!album) return;
-      const playable: PlayableTrack = {
-        id: t.id,
-        name: t.name,
-        artist_name: album.artist_name,
-        album_image: album.image,
-        audio: t.audio,
-      };
-      play(playable);
+  const albumQueue = useMemo<PlayableTrack[]>(() => {
+    if (!album) return [];
+    return album.tracks.map((t) => ({
+      id: t.id,
+      name: t.name,
+      artist_name: album.artist_name,
+      album_image: album.image,
+      audio: t.audio,
+    }));
+  }, [album]);
+
+  const playAt = useCallback(
+    (index: number) => {
+      if (albumQueue.length > 0) playQueue(albumQueue, index);
     },
-    [album, play],
+    [albumQueue, playQueue],
   );
 
-  const playAlbum = useCallback(() => {
-    if (album && album.tracks.length > 0) playTrack(album.tracks[0]);
-  }, [album, playTrack]);
+  const playAlbum = useCallback(() => playAt(0), [playAt]);
 
   const palette = album ? PALETTES[paletteFromId(album.id)] : PALETTES.lavender;
   const year = releaseYear(album?.releasedate);
@@ -170,7 +167,7 @@ export default function AlbumDetail() {
                   key={t.id}
                   style={styles.trackRow}
                   activeOpacity={0.7}
-                  onPress={() => playTrack(t)}
+                  onPress={() => playAt(i)}
                 >
                   <Text style={styles.trackIndex}>{t.position ?? i + 1}</Text>
                   <View style={styles.trackMeta}>

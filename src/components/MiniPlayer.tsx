@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { usePlayback } from '@/playback/PlaybackContext';
@@ -12,7 +13,11 @@ export function MiniPlayer() {
 
   return (
     <View style={styles.wrap}>
-      <TouchableOpacity style={styles.row} activeOpacity={0.85}>
+      <TouchableOpacity
+        style={styles.row}
+        activeOpacity={0.85}
+        onPress={() => router.push('/now-playing')}
+      >
         {current.album_image ? (
           <Image source={{ uri: current.album_image }} style={styles.art} contentFit="cover" />
         ) : (
