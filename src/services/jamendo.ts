@@ -34,6 +34,22 @@ export type JamendoArtist = {
   website?: string;
 };
 
+export type JamendoAlbumTrack = {
+  id: string;
+  name: string;
+  duration: number;
+  position?: number;
+  audio: string;
+};
+
+export type JamendoAlbumDetail = JamendoAlbum & {
+  tracks: JamendoAlbumTrack[];
+};
+
+export type JamendoPlaylistDetail = JamendoPlaylist & {
+  tracks: JamendoTrack[];
+};
+
 type JamendoResponse<T> = {
   headers: {
     status: string;
@@ -112,4 +128,20 @@ export function searchArtists(query: string, limit = 6): Promise<JamendoArtist[]
     limit: String(limit),
     namesearch: query,
   });
+}
+
+export async function getAlbumDetail(id: string): Promise<JamendoAlbumDetail | null> {
+  const results = await fetchJamendo<JamendoAlbumDetail>('/albums/tracks', {
+    id,
+    limit: '1',
+  });
+  return results[0] ?? null;
+}
+
+export async function getPlaylistDetail(id: string): Promise<JamendoPlaylistDetail | null> {
+  const results = await fetchJamendo<JamendoPlaylistDetail>('/playlists/tracks', {
+    id,
+    limit: '1',
+  });
+  return results[0] ?? null;
 }

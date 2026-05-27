@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -273,7 +274,10 @@ export default function Search() {
                       key={al.id}
                       style={styles.albumCard}
                       activeOpacity={0.7}
-                      onPress={() => commitRecent(debounced)}
+                      onPress={() => {
+                        commitRecent(debounced);
+                        router.push({ pathname: '/album/[id]', params: { id: al.id } });
+                      }}
                     >
                       <AlbumArt
                         palette={paletteFromId(al.id)}

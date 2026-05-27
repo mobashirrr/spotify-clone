@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -52,6 +53,8 @@ async function loadHome(): Promise<HomeData> {
   return {
     quickPlay: playlists.map((pl) => ({
       id: `pl-${pl.id}`,
+      kind: 'playlist' as const,
+      targetId: pl.id,
       title: pl.name,
       palette: paletteFromId(pl.id),
     })),
@@ -61,6 +64,8 @@ async function loadHome(): Promise<HomeData> {
         title: 'Popular tracks',
         items: tracks.map((t) => ({
           id: `t-${t.id}`,
+          kind: 'track' as const,
+          targetId: t.id,
           title: t.name,
           subtitle: t.artist_name,
           imageUrl: t.album_image,
@@ -72,6 +77,8 @@ async function loadHome(): Promise<HomeData> {
         title: 'Popular albums',
         items: albums.map((a) => ({
           id: `a-${a.id}`,
+          kind: 'album' as const,
+          targetId: a.id,
           title: a.name,
           subtitle: a.artist_name,
           imageUrl: a.image,
@@ -83,6 +90,8 @@ async function loadHome(): Promise<HomeData> {
         title: 'New releases',
         items: newTracks.map((t) => ({
           id: `n-${t.id}`,
+          kind: 'track' as const,
+          targetId: t.id,
           title: t.name,
           subtitle: t.artist_name,
           imageUrl: t.album_image,
@@ -93,9 +102,17 @@ async function loadHome(): Promise<HomeData> {
   };
 }
 
+function openCard(item: HomeCard) {
+  if (item.kind === 'album') {
+    router.push({ pathname: '/album/[id]', params: { id: item.targetId } });
+  } else if (item.kind === 'playlist') {
+    router.push({ pathname: '/playlist/[id]', params: { id: item.targetId } });
+  }
+}
+
 function QuickPlayCard({ item }: { item: HomeCard }) {
   return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.quickCard}>
+    <TouchableOpacity activeOpacity={0.7} style={styles.quickCard} onPress={() => openCard(item)}>
       <AlbumArt palette={item.palette} seed={item.id} size={56} radius={12} imageUrl={item.imageUrl} />
       <Text style={styles.quickTitle} numberOfLines={2}>
         {item.title}
@@ -106,7 +123,7 @@ function QuickPlayCard({ item }: { item: HomeCard }) {
 
 function ShelfCard({ item }: { item: HomeCard }) {
   return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.shelfCard}>
+    <TouchableOpacity activeOpacity={0.7} style={styles.shelfCard} onPress={() => openCard(item)}>
       <AlbumArt palette={item.palette} seed={item.id} size={148} radius={20} imageUrl={item.imageUrl} />
       <Text style={styles.shelfCardTitle} numberOfLines={1}>
         {item.title}
