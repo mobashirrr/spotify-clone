@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -40,6 +40,7 @@ export default function NowPlaying() {
     next,
     previous,
     seekTo,
+    seekBy,
   } = usePlayback();
 
   const [dragValue, setDragValue] = useState<number | null>(null);
@@ -120,10 +121,13 @@ export default function NowPlaying() {
           </View>
 
           <View style={styles.transport}>
-            <TouchableOpacity onPress={previous} hitSlop={12} activeOpacity={0.7} disabled={!hasPrevious}>
+            <TouchableOpacity onPress={() => seekBy(-10)} hitSlop={10} activeOpacity={0.7}>
+              <MaterialCommunityIcons name="rewind-10" size={32} color={colors.text} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={previous} hitSlop={10} activeOpacity={0.7} disabled={!hasPrevious}>
               <Ionicons
                 name="play-skip-back"
-                size={36}
+                size={30}
                 color={hasPrevious ? colors.text : colors.tabBarInactive}
               />
             </TouchableOpacity>
@@ -135,16 +139,19 @@ export default function NowPlaying() {
             >
               <Ionicons
                 name={isBuffering ? 'sync' : isPlaying ? 'pause' : 'play'}
-                size={36}
+                size={32}
                 color={colors.background}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={next} hitSlop={12} activeOpacity={0.7} disabled={!hasNext}>
+            <TouchableOpacity onPress={next} hitSlop={10} activeOpacity={0.7} disabled={!hasNext}>
               <Ionicons
                 name="play-skip-forward"
-                size={36}
+                size={30}
                 color={hasNext ? colors.text : colors.tabBarInactive}
               />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => seekBy(10)} hitSlop={10} activeOpacity={0.7}>
+              <MaterialCommunityIcons name="fast-forward-10" size={32} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -258,8 +265,8 @@ const styles = StyleSheet.create({
   transport: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: 40,
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
     marginTop: 8,
     marginBottom: 28,
   },

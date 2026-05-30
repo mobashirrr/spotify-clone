@@ -37,6 +37,7 @@ type PlaybackContextValue = {
   next: () => void;
   previous: () => void;
   seekTo: (seconds: number) => void;
+  seekBy: (deltaSeconds: number) => void;
   stop: () => void;
 };
 
@@ -128,6 +129,16 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
     [player],
   );
 
+  const seekBy = useCallback(
+    (deltaSeconds: number) => {
+      if (currentIndex < 0) return;
+      const max = status.duration > 0 ? status.duration : Number.POSITIVE_INFINITY;
+      const target = Math.max(0, Math.min(status.currentTime + deltaSeconds, max));
+      player.seekTo(target).catch(() => {});
+    },
+    [player, currentIndex, status.currentTime, status.duration],
+  );
+
   const stop = useCallback(() => {
     player.pause();
     setQueue([]);
@@ -167,6 +178,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       next,
       previous,
       seekTo,
+      seekBy,
       stop,
     }),
     [
@@ -185,6 +197,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       next,
       previous,
       seekTo,
+      seekBy,
       stop,
     ],
   );
