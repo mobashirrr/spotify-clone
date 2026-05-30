@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlbumArt } from '@/components/AlbumArt';
+import { useLibrary } from '@/library/LibraryContext';
 import { usePlayback, type PlayableTrack } from '@/playback/PlaybackContext';
 import { getPlaylistDetail, type JamendoPlaylistDetail } from '@/services/jamendo';
 import { PALETTES, colors, type PaletteName } from '@/theme/colors';
@@ -35,6 +36,7 @@ function formatDuration(seconds: number): string {
 export default function PlaylistDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { playQueue } = usePlayback();
+  const { isPlaylistFollowed, toggleFollow } = useLibrary();
   const [playlist, setPlaylist] = useState<JamendoPlaylistDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -143,8 +145,19 @@ export default function PlaylistDetail() {
             </Text>
 
             <View style={styles.actionRow}>
-              <TouchableOpacity activeOpacity={0.7} hitSlop={8} style={styles.iconAction}>
-                <Ionicons name="heart-outline" size={26} color={colors.textMuted} />
+              <TouchableOpacity
+                activeOpacity={0.7}
+                hitSlop={8}
+                style={styles.iconAction}
+                onPress={() =>
+                  toggleFollow({ id: playlist.id, name: playlist.name, user_name: playlist.user_name })
+                }
+              >
+                <Ionicons
+                  name={isPlaylistFollowed(playlist.id) ? 'heart' : 'heart-outline'}
+                  size={26}
+                  color={isPlaylistFollowed(playlist.id) ? colors.primary : colors.textMuted}
+                />
               </TouchableOpacity>
               <View style={{ flex: 1 }} />
               <TouchableOpacity activeOpacity={0.85} style={styles.playButton} onPress={playPlaylist}>

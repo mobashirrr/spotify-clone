@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useLibrary } from '@/library/LibraryContext';
 import { usePlayback } from '@/playback/PlaybackContext';
 import { PALETTES, colors, type PaletteName } from '@/theme/colors';
 
@@ -42,6 +43,7 @@ export default function NowPlaying() {
     seekTo,
     seekBy,
   } = usePlayback();
+  const { isTrackLiked, toggleLike } = useLibrary();
 
   const [dragValue, setDragValue] = useState<number | null>(null);
 
@@ -91,12 +93,26 @@ export default function NowPlaying() {
           </View>
 
           <View style={styles.meta}>
-            <Text style={styles.trackName} numberOfLines={2}>
-              {current.name}
-            </Text>
-            <Text style={styles.artist} numberOfLines={1}>
-              {current.artist_name}
-            </Text>
+            <View style={styles.metaText}>
+              <Text style={styles.trackName} numberOfLines={2}>
+                {current.name}
+              </Text>
+              <Text style={styles.artist} numberOfLines={1}>
+                {current.artist_name}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => toggleLike(current)}
+              hitSlop={10}
+              activeOpacity={0.7}
+              style={styles.likeButton}
+            >
+              <Ionicons
+                name={isTrackLiked(current.id) ? 'heart' : 'heart-outline'}
+                size={26}
+                color={isTrackLiked(current.id) ? colors.primary : colors.text}
+              />
+            </TouchableOpacity>
           </View>
 
           <View style={styles.seekRow}>
@@ -230,8 +246,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   meta: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 28,
     marginBottom: 22,
+    gap: 12,
+  },
+  metaText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  likeButton: {
+    padding: 4,
   },
   trackName: {
     color: colors.text,

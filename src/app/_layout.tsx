@@ -3,15 +3,18 @@ import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { AuthProvider, useAuth } from '@/auth/AuthContext';
+import { LibraryProvider } from '@/library/LibraryContext';
 import { PlaybackProvider } from '@/playback/PlaybackContext';
 import { colors } from '@/theme/colors';
 
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <PlaybackProvider>
-        <RootGate />
-      </PlaybackProvider>
+      <LibraryProvider>
+        <PlaybackProvider>
+          <RootGate />
+        </PlaybackProvider>
+      </LibraryProvider>
     </AuthProvider>
   );
 }
